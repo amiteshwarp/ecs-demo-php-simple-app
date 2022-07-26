@@ -1,11 +1,6 @@
-FROM php:7.3-fpm
-COPY --from=mlocati/php-extension-installer:1.5.8 /usr/bin/install-php-extensions /usr/local/bin/
-#It should be a part of deployment, composer not needed on live server
-#COPY --from=composer:2.2.12 /usr/bin/composer /usr/local/bin/composer
-RUN mv "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini" && \
-    install-php-extensions gd sockets redis zip pdo_pgsql pgsql
-
-
+FROM php:7.0-apache
+COPY src/ /var/www/html
+EXPOSE 80
 
 #FROM public.ecr.aws/amazonlinux/amazonlinux:2
 #
