@@ -1,0 +1,22 @@
+version: '3.9'
+#x-aws-vpc: "vpc-05b1ebfe661ee7cfa"
+#x-aws-loadbalancer: "aprasad-ecs-demo-load-balancer"
+services:
+   app:
+    image: spidyamit/ecs-demo-php-simple-app:v1.0
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 2048M
+    #x-aws-policies:
+    #  - "arn:aws:iam::947039910131:user/aprasad"
+    ports:
+      - 8081:80
+      #- '8888:80' #for local container
+      #- '443:443'
+      #- '8888:8888'
+#networks:
+#    default:
+#     external: true
+#     name: sg-090226bd25a4e8aa0
