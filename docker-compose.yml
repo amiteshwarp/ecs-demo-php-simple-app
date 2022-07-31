@@ -38,7 +38,6 @@ services:
     image: php-7.3-fpm
     volumes:
       - asset-volume:/var/www/html:rw
-      - html:/var/www/html:rw #Development only.
     working_dir: /var/www/html
     container_name: ref-php-fpm
     restart: unless-stopped
