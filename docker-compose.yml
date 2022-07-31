@@ -1,22 +1,66 @@
 version: '3.9'
-#x-aws-vpc: "vpc-05b1ebfe661ee7cfa"
+x-aws-vpc: "vpc-5b691e32" #Xento-Development
 #x-aws-loadbalancer: "aprasad-ecs-demo-load-balancer"
 services:
-   app:
-    image: spidyamit/ecs-demo-php-simple-app:v1.0
+  #nginx with proxy setup
+  ref-web:
+    platform: linux/amd64
+    image: nginx:1.12.0-alpine
     deploy:
       resources:
         limits:
-          cpus: '0.5'
+          cpus: "1"
           memory: 2048M
-    #x-aws-policies:
-    #  - "arn:aws:iam::947039910131:user/aprasad"
+    environment:
+      - NGINX_HOST=quote.residentinsuredev.com,web.residentinsuredev.com
+      - NGINX_PORT=80
+    volumes:
+      - ./source/nginx-default.conf:/etc/nginx/conf.d/default.conf
+      - asset-volume:/var/www/html:rw
+    working_dir: /var/www/html
+    container_name: ref-web
+    restart: unless-stopped
+    tty: true
     ports:
-      - 8081:80
-      #- '8888:80' #for local container
-      #- '443:443'
-      #- '8888:8888'
-#networks:
-#    default:
-#     external: true
-#     name: sg-090226bd25a4e8aa0
+      - '80:80'
+      - '443:443'
+    depends_on:
+      - ref-php-fpm
+    links:
+      - ref-php-fpm
+
+  #php-fpm service
+  ref-php-fpm:
+    platform: linux/amd64
+    build:
+      context: .
+      dockerfile: 'PHPDockerfile'
+    image: php-7.3-fpm
+    volumes:
+      - asset-volume:/var/www/html:rw
+      - html:/var/www/html:rw #Development only.
+    working_dir: /var/www/html
+    container_name: ref-php-fpm
+    restart: unless-stopped
+    tty: true
+    ports:
+      - '9000:9000'
+
+  #couchdb no-sql service
+  ref-couchdb:
+    platform: linux/amd64
+    image: apache/couchdb:3.1.2
+    environment:
+      COUCHDB_USER: admin
+      COUCHDB_PASSWORD: password
+    container_name: ref-couchdb
+    restart: unless-stopped
+    tty: true
+    ports:
+      - '5984:5984'
+volumes:
+  asset-volume:
+networks:
+    default:
+     external: true
+     name: sg-7ba2aa12 #Xento-Web-Security-Group

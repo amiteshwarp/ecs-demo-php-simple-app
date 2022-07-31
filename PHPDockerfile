@@ -1,0 +1,6 @@
+FROM php:7.3-fpm
+WORKDIR /var/www/html
+COPY --from=mlocati/php-extension-installer:1.5.8 /usr/bin/install-php-extensions /usr/local/bin/
+COPY html/ /var/www/html
+RUN mv "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini" && \
+    install-php-extensions gd sockets redis zip pdo_pgsql pgsql
