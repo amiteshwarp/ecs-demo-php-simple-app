@@ -68,8 +68,8 @@ jobs:
           
           echo "::set-output name=image-php::$ECR_REGISTRY/$ECR_REPOSITORY:php"
           echo "::set-output name=image-nginx::$ECR_REGISTRY/$ECR_REPOSITORY:nginx"
-          echo "::set-output name=image-couchdb::$ECR_REGISTRY/$ECR_REPOSITORY:couchdb"
-          echo "::set-output name=image-react::$ECR_REGISTRY/$ECR_REPOSITORY:react"
+          #echo "::set-output name=image-couchdb::$ECR_REGISTRY/$ECR_REPOSITORY:couchdb"
+          #echo "::set-output name=image-react::$ECR_REGISTRY/$ECR_REPOSITORY:react"
 
       - name: Download task definition
         run: |
@@ -92,21 +92,21 @@ jobs:
           container-name: ${{ secrets.ECS_CONTAINER_NAME }}
           image: ${{ steps.build-image.outputs.image-nginx }}
 
-      - name: Fill in the CouchDB image ID in the Amazon ECS task definition
-        id: task-def-couchdb
-        uses: aws-actions/amazon-ecs-render-task-definition@v1
-        with:
-          task-definition: task-definition.json
-          container-name: ${{ secrets.ECS_CONTAINER_NAME }}
-          image: ${{ steps.build-image.outputs.image-couchdb }}
+      #- name: Fill in the CouchDB image ID in the Amazon ECS task definition
+      #  id: task-def-couchdb
+      #  uses: aws-actions/amazon-ecs-render-task-definition@v1
+      #  with:
+      #    task-definition: task-definition.json
+      #    container-name: ${{ secrets.ECS_CONTAINER_NAME }}
+      #    image: ${{ steps.build-image.outputs.image-couchdb }}
 
-      - name: Fill in the React image ID in the Amazon ECS task definition
-        id: task-def-react
-        uses: aws-actions/amazon-ecs-render-task-definition@v1
-        with:
-          task-definition: task-definition.json
-          container-name: ${{ secrets.ECS_CONTAINER_NAME }}
-          image: ${{ steps.build-image.outputs.image-react }}
+      #- name: Fill in the React image ID in the Amazon ECS task definition
+      #  id: task-def-react
+      #  uses: aws-actions/amazon-ecs-render-task-definition@v1
+      #  with:
+      #    task-definition: task-definition.json
+      #    container-name: ${{ secrets.ECS_CONTAINER_NAME }}
+      #    image: ${{ steps.build-image.outputs.image-react }}
 
       - name: Deploy Amazon ECS task definition
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1

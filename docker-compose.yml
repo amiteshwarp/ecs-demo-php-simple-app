@@ -5,7 +5,11 @@ services:
   #nginx with proxy setup
   ref-web:
     platform: linux/amd64
-    image: nginx:1.12.0-alpine
+    build:
+      context: .
+      dockerfile: 'NginxDockerfile'
+    image: nginx-1.12.0-alpine
+    #image: nginx:1.12.0-alpine
     deploy:
       resources:
         limits:
@@ -15,7 +19,7 @@ services:
       - NGINX_HOST=quote.residentinsuredev.com,web.residentinsuredev.com
       - NGINX_PORT=80
     volumes:
-      - ./source/nginx-default.conf:/etc/nginx/conf.d/default.conf
+      #- ./source/nginx-default.conf:/etc/nginx/conf.d/default.conf
       - asset-volume:/var/www/html:rw
     working_dir: /var/www/html
     container_name: ref-web
@@ -46,17 +50,17 @@ services:
       - '9000:9000'
 
   #couchdb no-sql service
-  ref-couchdb:
-    platform: linux/amd64
-    image: apache/couchdb:3.1.2
-    environment:
-      COUCHDB_USER: admin
-      COUCHDB_PASSWORD: password
-    container_name: ref-couchdb
-    restart: unless-stopped
-    tty: true
-    ports:
-      - '5984:5984'
+  #ref-couchdb:
+  #  platform: linux/amd64
+  #  image: apache/couchdb:3.1.2
+  #  environment:
+  #    COUCHDB_USER: admin
+  #    COUCHDB_PASSWORD: password
+  #  container_name: ref-couchdb
+  #  restart: unless-stopped
+  #  tty: true
+  #  ports:
+  #    - '5984:5984'
 volumes:
   asset-volume:
 networks:
