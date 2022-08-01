@@ -53,9 +53,11 @@ jobs:
         run: |
           #Build Images
           docker compose build
+          #List Images
+          docker images
           #Tag Images
           docker tag php-7.3-fpm:latest $ECR_REGISTRY/$ECR_REPOSITORY:php
-          docker tag nginx:1.12.0-alpine $ECR_REGISTRY/$ECR_REPOSITORY:nginx
+          docker tag nginx-1.12.0-alpine:latest $ECR_REGISTRY/$ECR_REPOSITORY:nginx
           
           #docker tag apache/couchdb:3.1.2 $ECR_REGISTRY/$ECR_REPOSITORY:couchdb
           #docker tag react-node-16-13:latest $ECR_REGISTRY/$ECR_REPOSITORY:react
