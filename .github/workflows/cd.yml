@@ -128,7 +128,7 @@ jobs:
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
           task-definition: task-definition.json
-          container-name: format( '{0}-{1}', env.CORE_NAME, 'php' )
+          container-name: ${{ format( '{0}-{1}', env.CORE_NAME, 'php' ) }}
           image: ${{ steps.build-image.outputs.image-php }}
 
       - name: Fill in the Nginx image ID in the Amazon ECS task definition
