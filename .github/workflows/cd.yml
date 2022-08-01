@@ -39,7 +39,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ap-south-1
+          aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Login to Amazon ECR
         id: login-ecr
@@ -53,25 +53,20 @@ jobs:
         run: |
           #Build Images
           docker compose build
-          #List Images
-          docker images
+          
           #Tag Images
           docker tag php-7.3-fpm:latest $ECR_REGISTRY/$ECR_REPOSITORY:php
           docker tag nginx-1.12.0-alpine:latest $ECR_REGISTRY/$ECR_REPOSITORY:nginx
-          
-          #docker tag apache/couchdb:3.1.2 $ECR_REGISTRY/$ECR_REPOSITORY:couchdb
-          #docker tag react-node-16-13:latest $ECR_REGISTRY/$ECR_REPOSITORY:react
+          #docker tag couchdb-3.1.2:latest $ECR_REGISTRY/$ECR_REPOSITORY:couchdb
           
           #Push Images
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:php
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:nginx
           #docker push $ECR_REGISTRY/$ECR_REPOSITORY:couchdb
-          #docker push $ECR_REGISTRY/$ECR_REPOSITORY:react
           
           echo "::set-output name=image-php::$ECR_REGISTRY/$ECR_REPOSITORY:php"
           echo "::set-output name=image-nginx::$ECR_REGISTRY/$ECR_REPOSITORY:nginx"
           #echo "::set-output name=image-couchdb::$ECR_REGISTRY/$ECR_REPOSITORY:couchdb"
-          #echo "::set-output name=image-react::$ECR_REGISTRY/$ECR_REPOSITORY:react"
 
       - name: Download task definition
         run: |
@@ -83,8 +78,7 @@ jobs:
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
           task-definition: task-definition.json
-          #container-name: ${{ secrets.ECS_CONTAINER_NAME }}
-          container-name: aprasad-docker-demo-php
+          container-name: ${{ format( {0}-{1}), secrets.ECS_CONTAINER_NAME, 'php' }}
           image: ${{ steps.build-image.outputs.image-php }}
 
       - name: Fill in the Nginx image ID in the Amazon ECS task definition
@@ -92,8 +86,7 @@ jobs:
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
           task-definition: task-definition.json
-          #container-name: ${{ secrets.ECS_CONTAINER_NAME.nginx }}
-          container-name: aprasad-docker-demo-nginx
+          container-name: ${{ format( {0}-{1}), secrets.ECS_CONTAINER_NAME, 'nginx' }}
           image: ${{ steps.build-image.outputs.image-nginx }}
 
       #- name: Fill in the CouchDB image ID in the Amazon ECS task definition
@@ -103,14 +96,6 @@ jobs:
       #    task-definition: task-definition.json
       #    container-name: ${{ secrets.ECS_CONTAINER_NAME }}
       #    image: ${{ steps.build-image.outputs.image-couchdb }}
-
-      #- name: Fill in the React image ID in the Amazon ECS task definition
-      #  id: task-def-react
-      #  uses: aws-actions/amazon-ecs-render-task-definition@v1
-      #  with:
-      #    task-definition: task-definition.json
-      #    container-name: ${{ secrets.ECS_CONTAINER_NAME }}
-      #    image: ${{ steps.build-image.outputs.image-react }}
 
       - name: Deploy Amazon ECS task definition
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1

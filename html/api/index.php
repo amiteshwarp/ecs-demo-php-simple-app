@@ -18,6 +18,9 @@
                 <h2>Congratulations</h2>
                 <p>Your PHP application is now running on a container in Amazon ECS Revision.</p>
                 <p>The container is running PHP version <?php echo phpversion(); ?>.</p>
+                <?php
+					echo "Last modified [index.php]: ". date("F d Y H:i:s.", filemtime("index.php" ) );
+                ?>
             </div>
         </div>
 

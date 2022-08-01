@@ -13,12 +13,14 @@
 				query: 3
 			},
 			success: function(response){
+				$('#response').value( response );
 				console.log(response);
 			}
 		});
 	</script>
 </head>
 <body>
-
+	The react container is loaded and we will get data from microservice via ajax.
+	<p id="response"></p>
 </body>
 </html>
