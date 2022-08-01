@@ -30,8 +30,6 @@ services:
       - '443:443'
     depends_on:
       - ref-php-fpm
-    links:
-      - ref-php-fpm
 
   #php-fpm service
   ref-php-fpm:
@@ -61,6 +59,7 @@ services:
   #  tty: true
   #  ports:
   #    - '5984:5984'
+  # echo $(aws ecr get-login-password --region ap-south-1) | docker login --password-stdin --username AWS 123456789.dkr.ecr.us-east-1.amazonaws.com/ecsworker
 volumes:
   asset-volume:
 networks:
