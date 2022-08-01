@@ -46,7 +46,7 @@ jobs:
           #echo "::set-output name=composer-dir::$(composer config cache-files-dir)"
           #echo "::set-output name=node-dir::$(npm cache dir)"
       - uses: actions/cache@v2.1.6
-        with:
+        #with:
           #path: ${{ steps.cache-provider.outputs.node-dir }}
           #key: "node-${{ matrix.node-version }}-npm-${{ hashFiles('package-lock.json') }}"
           #restore-keys: "node-${{ matrix.node-version }}-npm-${{ matrix.dependencies }}-"
@@ -71,7 +71,7 @@ jobs:
            #composer validate -d html/api
            #composer install -d html/api -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
       - uses: actions/cache@v2.1.6
-        with:
+        #with:
            #path: ${{ steps.cache-provider.outputs.composer-dir }}
            #key: "php-${{ matrix.php-version }}-composer-${{ matrix.dependencies }}-${{ hashFiles('composer.lock') }}"
            #restore-keys: "php-${{ matrix.php-version }}-composer-${{ matrix.dependencies }}-"
