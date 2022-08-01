@@ -79,20 +79,20 @@ jobs:
           --query taskDefinition > task-definition.json
 
       - name: Fill in the PHP image ID in the Amazon ECS task definition
-        id: task-def-php
+        id: task-def
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
           task-definition: task-definition.json
           container-name: ${{ secrets.ECS_CONTAINER_NAME }}
-          image: ${{ steps.build-image.outputs.image-php }}
+          image: ${{ steps.build-image.outputs.image }}
 
-      - name: Fill in the Nginx image ID in the Amazon ECS task definition
-        id: task-def-nginx
-        uses: aws-actions/amazon-ecs-render-task-definition@v1
-        with:
-          task-definition: task-definition.json
-          container-name: ${{ secrets.ECS_CONTAINER_NAME }}
-          image: ${{ steps.build-image.outputs.image-nginx }}
+      #- name: Fill in the Nginx image ID in the Amazon ECS task definition
+      #  id: task-def-nginx
+      #  uses: aws-actions/amazon-ecs-render-task-definition@v1
+      #  with:
+      #    task-definition: task-definition.json
+      #    container-name: ${{ secrets.ECS_CONTAINER_NAME }}
+      #    image: ${{ steps.build-image.outputs.image-nginx }}
 
       #- name: Fill in the CouchDB image ID in the Amazon ECS task definition
       #  id: task-def-couchdb
