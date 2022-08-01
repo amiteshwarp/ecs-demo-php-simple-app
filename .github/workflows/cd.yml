@@ -83,7 +83,8 @@ jobs:
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
           task-definition: task-definition.json
-          container-name: ${{ secrets.ECS_CONTAINER_NAME.php }}
+          #container-name: ${{ secrets.ECS_CONTAINER_NAME }}
+          container-name: aprasad-docker-demo-php
           image: ${{ steps.build-image.outputs.image-php }}
 
       - name: Fill in the Nginx image ID in the Amazon ECS task definition
@@ -91,7 +92,8 @@ jobs:
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
           task-definition: task-definition.json
-          container-name: ${{ secrets.ECS_CONTAINER_NAME.nginx }}
+          #container-name: ${{ secrets.ECS_CONTAINER_NAME.nginx }}
+          container-name: aprasad-docker-demo-nginx
           image: ${{ steps.build-image.outputs.image-nginx }}
 
       #- name: Fill in the CouchDB image ID in the Amazon ECS task definition
