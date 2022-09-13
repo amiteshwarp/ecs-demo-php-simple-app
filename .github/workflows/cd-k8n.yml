@@ -1,0 +1,133 @@
+# This is a basic workflow to help you get started with Actions
+name: "EKS - k8n Code Deployment"
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the main branch
+  pull_request: null
+  push:
+    branches:
+      - "main"
+env:
+  CORE_NAME: ${{ secrets.CORE_NAME }}
+  # TODO: Make sure the have suffix for TaskDefination: -task, Service: -service, Container: -container, Cluster: -cluster
+  # Allows you to run this workflow manually from the Actions tab
+  #workflow_dispatch:
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        #ready for upgrade
+        php-version:
+          - '7.3'
+        phpunit-version:
+          - '8.5'
+        node-version:
+          - '16.13'
+        dependencies:
+          - "locked"
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Code setup starts
+      - name: Get branch name
+        uses: nelonoel/branch-name@v1.0.1
+        id: branch
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node-version }}
+      #- name: Get Cache Directory
+      #  id: cache-provider
+      #  run: |
+      #    echo "::set-output name=composer-dir::$(composer config cache-files-dir)"
+      #    echo "::set-output name=node-dir::$(npm cache dir)"
+      #- uses: actions/cache@v2.1.6
+      #  with:
+      #    path: ${{ steps.cache-provider.outputs.node-dir }}
+      #    key: "node-${{ matrix.node-version }}-npm-${{ hashFiles('package-lock.json') }}"
+      #    restore-keys: "node-${{ matrix.node-version }}-npm-${{ matrix.dependencies }}-"
+      - uses: actions/upload-artifact@v2.2.4
+        with:
+          path: public/**
+      - name: Npm setup
+        run: |
+          #npm install html/web --frozen-lockfile
+          #npm build:${{ env.BRANCH_NAME }}
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          coverage: xdebug
+          ini-values: xdebug.mode="develop,coverage"
+          php-version: ${{ matrix.php-version }}
+          extensions: curl, mbstring, bcmath, xml, zip, soap, gd, intl, imap
+          tools: phpunit:${{ matrix.phpunit-version }}
+      - name: Validate and Install Composer Dependencies
+        run: |
+           #composer validate -d html/api
+           #composer install -d html/api -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+      #- uses: actions/cache@v2.1.6
+      #  with:
+      #     path: ${{ steps.cache-provider.outputs.composer-dir }}
+      #     key: "php-${{ matrix.php-version }}-composer-${{ matrix.dependencies }}-${{ hashFiles('composer.lock') }}"
+      #     restore-keys: "php-${{ matrix.php-version }}-composer-${{ matrix.dependencies }}-"
+      # Runs a set of commands using the runners shell
+      - name: Run test suite
+        run: |
+           echo "Running unit tests"
+           #composer test
+           #yarn test
+      # Code setup done
+
+      # Cloud setup starts
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Build,tag, and push PHP image to Amazon ECR
+        id: build-image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: ${{ env.CORE_NAME }}
+        run: |
+          #Build Images
+          docker compose build
+          
+          #Tag Images
+          docker tag php-7.3-fpm:latest $ECR_REGISTRY/$ECR_REPOSITORY:php
+          docker tag nginx-1.12.0-alpine:latest $ECR_REGISTRY/$ECR_REPOSITORY:nginx
+        
+          #Push Images
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:php
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:nginx
+       
+          echo "::set-output name=image-php::$ECR_REGISTRY/$ECR_REPOSITORY:php"
+          echo "::set-output name=image-nginx::$ECR_REGISTRY/$ECR_REPOSITORY:nginx"
+
+      - name: deploy to cluster
+        uses: kodermax/kubectl-aws-eks@master
+        env:
+          KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA }}
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: ${{ env.CORE_NAME }}
+          IMAGE_TAG: ${{ github.sha }}
+        with:
+          args: set image deployment/$ECR_REPOSITORY $ECR_REPOSITORY=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
+      - name: verify deployment
+        uses: kodermax/kubectl-aws-eks@master
+        env:
+          KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA }}
+        with:
+          args: rollout status deployment/${{ env.CORE_NAME }}
