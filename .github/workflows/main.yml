@@ -50,5 +50,7 @@ jobs:
         run: aws eks update-kubeconfig --name aprasad-k8n-demo --region ${{ secrets.AWS_DEFAULT_REGION }}
       - name: Deploy image to Amazon EKS
         run: |
+          aws sts get-caller-identity
+          kubectl get svc
           kubectl apply -f aws-auth.yml
           kubectl apply -f git-deployment.yml
