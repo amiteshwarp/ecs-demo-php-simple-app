@@ -12,13 +12,14 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
       - name: Install kubectl
         uses: azure/setup-kubectl@v1
         with:
           version: "v1.22.0"
         id: install
-      - name: Checkout
-        uses: actions/checkout@v2
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -42,15 +43,13 @@ jobs:
          # # Build a docker container and push it to ECR 
          # docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
          echo "Pushing image to ECR..."
-         #kubectl apply -f git-deployment.yml
          # docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
          # echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
 
       - name: Update kube config
-        run: aws eks update-kubeconfig --name aprasad-k8n-demo --region ${{ secrets.AWS_DEFAULT_REGION }}
+        run: aws eks update-kubeconfig --name aprasad-k8n-demo --region ap-south-1 --role-arn arn:aws:iam::961190689651:role/EntrataEKSClusterRole
+
       - name: Deploy image to Amazon EKS
         run: |
-          aws sts get-caller-identity
           kubectl apply -f aws-auth.yml
-          kubectl get svc
           kubectl apply -f git-deployment.yml
