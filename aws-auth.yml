@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: aws-auth
+data:
+  mapUsers: |
+    - userarn: arn:aws:iam::961190689651:user/aprasad
+      username: aprasad
