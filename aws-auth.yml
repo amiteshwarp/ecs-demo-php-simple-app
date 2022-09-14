@@ -6,3 +6,5 @@ data:
   mapUsers: |
     - userarn: arn:aws:iam::961190689651:user/aprasad
       username: aprasad
+      groups:
+      - system:masters
