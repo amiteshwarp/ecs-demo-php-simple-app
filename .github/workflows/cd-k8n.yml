@@ -3,10 +3,10 @@ name: "EKS - k8n Code Deployment"
 # Controls when the workflow will run
 on:
   # Triggers the workflow on push or pull request events but only for the main branch
-  pull_request: null
-  push:
-    branches:
-      - "main"
+  #pull_request: null
+  #push:
+  #  branches:
+  #    - "main"
 env:
   CORE_NAME: ${{ secrets.CORE_NAME }}
   # TODO: Make sure the have suffix for TaskDefination: -task, Service: -service, Container: -container, Cluster: -cluster
@@ -37,51 +37,51 @@ jobs:
         id: branch
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
-        with:
-          node-version: ${{ matrix.node-version }}
-      #- name: Get Cache Directory
-      #  id: cache-provider
-      #  run: |
-      #    echo "::set-output name=composer-dir::$(composer config cache-files-dir)"
-      #    echo "::set-output name=node-dir::$(npm cache dir)"
-      #- uses: actions/cache@v2.1.6
-      #  with:
-      #    path: ${{ steps.cache-provider.outputs.node-dir }}
-      #    key: "node-${{ matrix.node-version }}-npm-${{ hashFiles('package-lock.json') }}"
-      #    restore-keys: "node-${{ matrix.node-version }}-npm-${{ matrix.dependencies }}-"
-      - uses: actions/upload-artifact@v2.2.4
-        with:
-          path: public/**
-      - name: Npm setup
-        run: |
-          #npm install html/web --frozen-lockfile
-          #npm build:${{ env.BRANCH_NAME }}
-
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          coverage: xdebug
-          ini-values: xdebug.mode="develop,coverage"
-          php-version: ${{ matrix.php-version }}
-          extensions: curl, mbstring, bcmath, xml, zip, soap, gd, intl, imap
-          tools: phpunit:${{ matrix.phpunit-version }}
-      - name: Validate and Install Composer Dependencies
-        run: |
-           #composer validate -d html/api
-           #composer install -d html/api -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
-      #- uses: actions/cache@v2.1.6
-      #  with:
-      #     path: ${{ steps.cache-provider.outputs.composer-dir }}
-      #     key: "php-${{ matrix.php-version }}-composer-${{ matrix.dependencies }}-${{ hashFiles('composer.lock') }}"
-      #     restore-keys: "php-${{ matrix.php-version }}-composer-${{ matrix.dependencies }}-"
-      # Runs a set of commands using the runners shell
-      - name: Run test suite
-        run: |
-           echo "Running unit tests"
-           #composer test
-           #yarn test
-      # Code setup done
+      ##- uses: actions/setup-node@v2
+      ##  with:
+      ##    node-version: ${{ matrix.node-version }}
+      ###- name: Get Cache Directory
+      ###  id: cache-provider
+      ###  run: |
+      ###    echo "::set-output name=composer-dir::$(composer config cache-files-dir)"
+      ###    echo "::set-output name=node-dir::$(npm cache dir)"
+      ###- uses: actions/cache@v2.1.6
+      ###  with:
+      ###    path: ${{ steps.cache-provider.outputs.node-dir }}
+      ###    key: "node-${{ matrix.node-version }}-npm-${{ hashFiles('package-lock.json') }}"
+      ###    restore-keys: "node-${{ matrix.node-version }}-npm-${{ matrix.dependencies }}-"
+      ##- uses: actions/upload-artifact@v2.2.4
+      ##  with:
+      ##    path: public/**
+      ##- name: Npm setup
+      ##  run: |
+      ##    #npm install html/web --frozen-lockfile
+      ##    #npm build:${{ env.BRANCH_NAME }}
+##
+      ##- name: Setup PHP
+      ##  uses: shivammathur/setup-php@v2
+      ##  with:
+      ##    coverage: xdebug
+      ##    ini-values: xdebug.mode="develop,coverage"
+      ##    php-version: ${{ matrix.php-version }}
+      ##    extensions: curl, mbstring, bcmath, xml, zip, soap, gd, intl, imap
+      ##    tools: phpunit:${{ matrix.phpunit-version }}
+      ##- name: Validate and Install Composer Dependencies
+      ##  run: |
+      ##     #composer validate -d html/api
+      ##     #composer install -d html/api -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+      ###- uses: actions/cache@v2.1.6
+      ###  with:
+      ###     path: ${{ steps.cache-provider.outputs.composer-dir }}
+      ###     key: "php-${{ matrix.php-version }}-composer-${{ matrix.dependencies }}-${{ hashFiles('composer.lock') }}"
+      ###     restore-keys: "php-${{ matrix.php-version }}-composer-${{ matrix.dependencies }}-"
+      ### Runs a set of commands using the runners shell
+      ##- name: Run test suite
+      ##  run: |
+      ##     echo "Running unit tests"
+      ##     #composer test
+      ##     #yarn test
+      ### Code setup done
 
       # Cloud setup starts
       - name: Configure AWS credentials
@@ -101,27 +101,29 @@ jobs:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: ${{ env.CORE_NAME }}
         run: |
+          ls -la
           #Build Images
-          docker compose build
+          #docker compose build
           
           #Tag Images
-          docker tag php-7.3-fpm:latest $ECR_REGISTRY/$ECR_REPOSITORY:php
-          docker tag nginx-1.12.0-alpine:latest $ECR_REGISTRY/$ECR_REPOSITORY:nginx
+          #docker tag php-7.3-fpm:latest $ECR_REGISTRY/$ECR_REPOSITORY:php
+          #docker tag nginx-1.12.0-alpine:latest $ECR_REGISTRY/$ECR_REPOSITORY:nginx
         
           #Push Images
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:php
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:nginx
+          #docker push $ECR_REGISTRY/$ECR_REPOSITORY:php
+          #docker push $ECR_REGISTRY/$ECR_REPOSITORY:nginx
        
           echo "::set-output name=image-php::$ECR_REGISTRY/$ECR_REPOSITORY:php"
           echo "::set-output name=image-nginx::$ECR_REGISTRY/$ECR_REPOSITORY:nginx"
 
       - name: deploy to cluster
-        uses: kodermax/kubectl-aws-eks@master
+        uses: kodermax/kubectl-aws-eks@1.1.0
         env:
           KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA }}
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: ${{ env.CORE_NAME }}
           IMAGE_TAG: ${{ github.sha }}
+          KUBECTL_VERSION: "v1.22.0"
         with:
           args: set image deployment/$ECR_REPOSITORY $ECR_REPOSITORY=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 

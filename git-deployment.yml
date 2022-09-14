@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aprasad-k8n-demo
+  labels:
+    app: aprasad-k8n-demo
+spec:
+  selector:
+    matchLabels:
+      app: aprasad-k8n-demo
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: oaprasad-k8n-demo
+    spec:
+      containers:
+        - name: aprasad-k8n-demo-php
+          image: 961190689651.dkr.ecr.ap-south-1.amazonaws.com/aprasad-docker-demo:php
+          ports:
+            - containerPort: 9000
+              protocol: TCP
+          imagePullPolicy: Always
+        - name: aprasad-k8n-demo-nginx
+          image: 961190689651.dkr.ecr.ap-south-1.amazonaws.com/aprasad-docker-demo:nginx
+          ports:
+            - containerPort: 80
+              protocol: TCP
+          imagePullPolicy: Always
