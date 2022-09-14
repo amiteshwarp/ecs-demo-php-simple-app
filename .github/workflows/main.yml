@@ -51,6 +51,6 @@ jobs:
       - name: Deploy image to Amazon EKS
         run: |
           aws sts get-caller-identity
-          kubectl get svc
           kubectl apply -f aws-auth.yml
+          kubectl get svc
           kubectl apply -f git-deployment.yml

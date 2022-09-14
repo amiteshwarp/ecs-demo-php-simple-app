@@ -14,7 +14,7 @@ spec:
   template:
     metadata:
       labels:
-        app: oaprasad-k8n-demo
+        app: aprasad-k8n-demo
     spec:
       containers:
         - name: aprasad-k8n-demo-php
