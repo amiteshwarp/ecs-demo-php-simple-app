@@ -2,9 +2,15 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: aws-auth
+  namespace: kube-system
 data:
   mapUsers: |
     - userarn: arn:aws:iam::961190689651:user/aprasad
       username: aprasad
       groups:
       - system:masters
+  mapRoles: |
+    - rolearn: arn:aws:iam::961190689651:role/EntrataEKSClusterRole
+      username: EntrataEKSClusterRole
+      groups:
+        - system:masters
