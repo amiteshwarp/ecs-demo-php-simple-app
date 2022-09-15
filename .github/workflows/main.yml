@@ -49,6 +49,7 @@ jobs:
         run: | 
           aws eks update-kubeconfig --name aprasad-k8n-demo1-21 --region ap-south-1 --role-arn arn:aws:iam::961190689651:role/EntrataEKSClusterRole
           kubectl config view
+          kubectl get svc
 
       - name: Deploy image to Amazon EKS
         run: |
