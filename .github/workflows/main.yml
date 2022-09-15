@@ -17,7 +17,7 @@ jobs:
       - name: Install kubectl
         uses: azure/setup-kubectl@v1
         with:
-          version: "v1.22.0"
+          version: "v1.21.0"
         id: install
 
       - name: Configure AWS credentials
@@ -46,7 +46,9 @@ jobs:
          # echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
 
       - name: Update kube config
-        run: aws eks update-kubeconfig --name aprasad-k8n-demo --region ap-south-1 --role-arn arn:aws:iam::961190689651:role/EntrataEKSClusterRole
+        run: | 
+          aws eks update-kubeconfig --name aprasad-k8n-demo1-21 --region ap-south-1 --role-arn arn:aws:iam::961190689651:role/EntrataEKSClusterRole
+          kubectl config view
 
       - name: Deploy image to Amazon EKS
         run: |
